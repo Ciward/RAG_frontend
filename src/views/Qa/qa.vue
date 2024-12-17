@@ -1,6 +1,6 @@
 <template>
-  <div class="qa-container" @scroll="handleScroll">
-    <div class="qa-list">
+  <div class="qa-container" >
+    <div class="qa-list" >
       <div v-for="question in questions" :key="question.id" class="qa-item">
         <div class="question-header">
           <h3>{{ question.content }}</h3>
@@ -78,7 +78,14 @@ const newAnswer = ref('');
 const isAdmin = ref(true); // 假设从某处获取用户角色信息
 const currentUser = '当前用户'; // 假设从某处获取当前用户名
 
+const handleScroll = async (event: Event) => {
+  const target = event.target as HTMLElement;
+  if (target.scrollHeight - target.scrollTop <= target.clientHeight + 1) {
+    await qaStore.loadMoreQuestions();
+  }
+};
 onMounted(async () => {
+  document.addEventListener('scroll', handleScroll);
   await userStore.updateUserInfo(); // 确保在获取问题之前更新用户信息
   isAdmin.value = userStore.userInfo.role === 'admin'; // 根据角色设置 isAdmin
   await qaStore.fetchQuestions();
@@ -135,12 +142,7 @@ const formatDate = (date: string) => {
   return moment(date).format('YYYY-MM-DD HH:mm:ss');
 };
 
-const handleScroll = async (event: Event) => {
-  const target = event.target as HTMLElement;
-  if (target.scrollHeight - target.scrollTop <= target.clientHeight + 1) {
-    await qaStore.loadMoreQuestions();
-  }
-};
+
 
 const toggleQuestionStatus = async (question: Question) => {
   try {
@@ -182,8 +184,8 @@ const getStatusText = status => {
   padding: 20px;
   max-width: 1200px;
   margin: 0 auto;
-  overflow-y: auto;
-  height: 100vh; // 设置容器高度以便滚动
+  overflow-y:auto;
+  height:100vh;
   // border: 1px solid #ddd; // 可选：添加边框以更明显地显示滚动区域
 }
 
